@@ -1,81 +1,61 @@
 "use client"
 
 import { useState } from "react"
-import { FileIcon, FileTextIcon, ImageIcon, DatabaseIcon, BarChart3Icon } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
-
-import type { Document } from "@/lib/types"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { DatabaseIcon } from "lucide-react"
+import type { Dataset } from "@/lib/types"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import DocumentModal from "@/components/document-modal"
+import DatasetModal from "@/components/document-modal"
 
-interface DocumentListProps {
-  documents: Document[]
+interface DatasetListProps {
+  datasets: Dataset[]
   showBuyButton?: boolean
-  onBuy?: (document: Document) => void
+  onBuy?: (dataset: Dataset) => void
 }
 
-export default function DocumentList({ documents, showBuyButton = true, onBuy }: DocumentListProps) {
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
+export default function DatasetList({ datasets, showBuyButton = true, onBuy }: DatasetListProps) {
+  const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case "zip":
-      case "image":
-        return <ImageIcon className="h-5 w-5 text-emerald-600" />
-      case "pdf":
-        return <FileIcon className="h-5 w-5 text-emerald-600" />
-      case "csv":
-      case "xlsx":
-        return <DatabaseIcon className="h-5 w-5 text-emerald-600" />
-      case "json":
-        return <BarChart3Icon className="h-5 w-5 text-emerald-600" />
-      default:
-        return <FileTextIcon className="h-5 w-5 text-emerald-600" />
-    }
-  }
+  const getIcon = () => <DatabaseIcon className="h-5 w-5 text-emerald-600" />
 
-  const handleViewDetails = (document: Document) => {
-    setSelectedDocument(document)
+  const handleViewDetails = (dataset: Dataset) => {
+    setSelectedDataset(dataset)
     setIsModalOpen(true)
   }
 
-  const handleBuy = (document: Document) => {
+  const handleBuy = (dataset: Dataset) => {
     if (onBuy) {
-      onBuy(document)
+      onBuy(dataset)
     }
   }
 
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {documents.map((doc) => (
-          <Card key={doc.id} className="overflow-hidden">
+        {Array.isArray(datasets) && datasets.map((dataset, index) => (
+          <Card key={index} className="overflow-hidden">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  {getIcon(doc.type)}
-                  <CardTitle className="text-lg">{doc.name}</CardTitle>
+                  {getIcon()}
+                  <CardTitle className="text-lg">Dataset #{index}</CardTitle>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {doc.category}
+                  {dataset.ageRange ?? "Unknown"}
                 </Badge>
               </div>
-              <CardDescription>{formatDistanceToNow(new Date(doc.date), { addSuffix: true })}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {doc.size} • {doc.sampleSize} samples
-                </p>
-                <p className="font-medium text-emerald-600">${doc.price.toFixed(2)}</p>
-              </div>
-              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{doc.description}</p>
-            </CardContent>
+
             <CardFooter className="flex justify-between border-t bg-muted/50 px-6 py-3">
-              <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleViewDetails(doc)}>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleViewDetails(dataset)}>
                 View Details
               </Button>
               {showBuyButton && (
@@ -83,7 +63,7 @@ export default function DocumentList({ documents, showBuyButton = true, onBuy }:
                   variant="default"
                   size="sm"
                   className="text-xs bg-emerald-600 hover:bg-emerald-700"
-                  onClick={() => handleBuy(doc)}
+                  onClick={() => handleBuy(dataset)}
                 >
                   Purchase
                 </Button>
@@ -93,8 +73,9 @@ export default function DocumentList({ documents, showBuyButton = true, onBuy }:
         ))}
       </div>
 
-      <DocumentModal
-        document={selectedDocument}
+      <DatasetModal
+        dataset={selectedDataset}
+        index={datasets.findIndex(d => d === selectedDataset)}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onBuy={showBuyButton && onBuy ? handleBuy : undefined}

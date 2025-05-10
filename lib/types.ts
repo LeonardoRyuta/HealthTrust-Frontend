@@ -1,13 +1,14 @@
-export interface Document {
-  id: string
-  name: string
-  type: string
-  size: string
-  date: string
-  uploadedBy: string
+export interface Dataset {
+  datasetId: string
+  ipfsHash: string
+  gender: string
+  ageRange: string
+  bmi: string
+  chronicConditions: string[]
+  SampleSize: string
   price: number
+  tokenAddress: string
   description: string
-  category: string
   sampleSize: number
   timeframe: string
 }

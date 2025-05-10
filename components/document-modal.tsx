@@ -1,128 +1,112 @@
 "use client"
 
-import { FileIcon, FileTextIcon, ImageIcon, DatabaseIcon, BarChart3Icon, Users, Clock } from "lucide-react"
-import { formatDistanceToNow, format } from "date-fns"
-
-import type { Document } from "@/lib/types"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  UserIcon,
+  CalendarIcon,
+  ActivityIcon,
+  HeartIcon,
+  StethoscopeIcon,
+  GlobeIcon,
+  LinkIcon
+} from "lucide-react"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
-interface DocumentModalProps {
-  document: Document | null
-  isOpen: boolean
-  onClose: () => void
-  onBuy?: (document: Document) => void
+interface Dataset {
+  datasetId: string;
+  owner: string;
+  gender: number;
+  ageRange: number;
+  bmiCategory: number;
+  chronicConditions: number[];
+  healthMetricTypes: number[];
+  isActive: boolean;
 }
 
-export default function DocumentModal({ document, isOpen, onClose, onBuy }: DocumentModalProps) {
-  if (!document) return null
+interface DatasetModalProps {
+  dataset: Dataset | null;
+  index: number | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case "zip":
-      case "image":
-        return <ImageIcon className="h-6 w-6 text-emerald-600" />
-      case "pdf":
-        return <FileIcon className="h-6 w-6 text-emerald-600" />
-      case "csv":
-      case "xlsx":
-        return <DatabaseIcon className="h-6 w-6 text-emerald-600" />
-      case "json":
-        return <BarChart3Icon className="h-6 w-6 text-emerald-600" />
-      default:
-        return <FileTextIcon className="h-6 w-6 text-emerald-600" />
-    }
-  }
+const GENDER_MAP = ["Unknown", "Male", "Female"];
+const AGE_RANGE_MAP = [
+  "0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"
+];
+const BMI_CATEGORY_MAP = ["Underweight", "Normal", "Overweight", "Obese", "Severely Obese", "Morbidly Obese"];
 
-  const handleBuy = () => {
-    if (onBuy) {
-      onBuy(document)
-      onClose()
-    }
-  }
+export default function DatasetModal({ dataset, index, isOpen, onClose }: DatasetModalProps) {
+  if (!dataset) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <div className="flex items-center gap-2">
-            {getIcon(document.type)}
-            <DialogTitle>{document.name}</DialogTitle>
-          </div>
-          <div className="flex items-center justify-between">
-            <DialogDescription>
-              Uploaded by {document.uploadedBy} {formatDistanceToNow(new Date(document.date), { addSuffix: true })}
-            </DialogDescription>
-            <Badge variant="outline" className="text-xs">
-              {document.category}
-            </Badge>
-          </div>
+          <DialogTitle>Dataset #{index}</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="rounded-md bg-muted p-4">
-            <p className="text-sm">{document.description}</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <div className="flex flex-col gap-1 rounded-md border p-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <DatabaseIcon className="h-3.5 w-3.5" />
-                <span>File Size</span>
-              </div>
-              <p className="text-sm font-medium">{document.size}</p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <InfoBox
+                icon={<UserIcon className="h-4 w-4" />}
+                label="Gender"
+                value={GENDER_MAP[dataset?.gender ?? -1] ?? "Unknown"}
+              />
+              <InfoBox
+                icon={<CalendarIcon className="h-4 w-4" />}
+                label="Age Range"
+                value={AGE_RANGE_MAP[dataset?.ageRange ?? -1] ?? "Unknown"}
+              />
+              <InfoBox
+                icon={<ActivityIcon className="h-4 w-4" />}
+                label="BMI Category"
+                value={BMI_CATEGORY_MAP[dataset?.bmiCategory ?? -1] ?? "Unknown"}
+              />
+              <InfoBox
+                icon={<HeartIcon className="h-4 w-4" />}
+                label="Conditions"
+                value={
+                  Array.isArray(dataset?.chronicConditions)
+                    ? dataset.chronicConditions.join(", ")
+                    : "None"
+                }
+              />
+              <InfoBox
+                icon={<StethoscopeIcon className="h-4 w-4" />}
+                label="Health Metrics"
+                value={
+                  Array.isArray(dataset?.healthMetricTypes)
+                    ? dataset.healthMetricTypes.join(", ")
+                    : "N/A"
+                }
+              />
+              <InfoBox
+                icon={<GlobeIcon className="h-4 w-4" />}
+                label="Owner"
+                value={dataset?.owner ? dataset.owner.slice(0, 10) + "..." : "Unknown"}
+              />
             </div>
-            <div className="flex flex-col gap-1 rounded-md border p-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Users className="h-3.5 w-3.5" />
-                <span>Sample Size</span>
-              </div>
-              <p className="text-sm font-medium">{document.sampleSize} participants</p>
-            </div>
-            <div className="flex flex-col gap-1 rounded-md border p-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                <span>Timeframe</span>
-              </div>
-              <p className="text-sm font-medium">{document.timeframe}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-md border p-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Price</p>
-              <p className="text-xl font-bold text-emerald-600">${document.price.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">File Format</p>
-              <p className="text-sm font-medium">.{document.type}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Upload Date</p>
-              <p className="text-sm font-medium">{format(new Date(document.date), "MMM d, yyyy")}</p>
-            </div>
-          </div>
         </div>
 
-        <DialogFooter className="flex sm:justify-between">
+        <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          {onBuy && (
-            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleBuy}>
-              Purchase for ${document.price.toFixed(2)}
-            </Button>
-          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
+}
+
+function InfoBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-1 rounded-md border p-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <p className="text-sm font-medium">{value}</p>
+    </div>
+  );
 }

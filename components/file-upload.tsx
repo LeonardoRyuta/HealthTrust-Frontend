@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { toast } from "react-hot-toast"
 import { Upload, X, DollarSign } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -13,21 +14,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { File } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
+import { uploadToIPFS } from "@/lib/ipfs"
+import { submitDatasetToContract } from "@/lib/contract"
+import { GENDER_MAP, AGE_RANGE_MAP, CONDITION_MAP } from '@/components/constant_mappings';
 const FileIcon = File
 
-const healthCategories = [
-  "Cardiology",
-  "Neurology",
-  "Diabetes",
-  "Oncology",
-  "Nutrition",
-  "Sleep Medicine",
-  "Infectious Disease",
-  "Mental Health",
-  "Pediatrics",
-  "Geriatrics",
-]
 
 export default function FileUpload() {
   const [isDragging, setIsDragging] = useState(false)
@@ -36,9 +27,10 @@ export default function FileUpload() {
   const [isUploading, setIsUploading] = useState(false)
   const [price, setPrice] = useState<string>("49.99")
   const [description, setDescription] = useState("")
-  const [category, setCategory] = useState("")
   const [sampleSize, setSampleSize] = useState<string>("100")
   const [timeframe, setTimeframe] = useState<string>("3 months")
+  const [ height, setHeight] = useState<number>(0)
+  const [weight, setWeight] = useState<number>(0)
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -69,33 +61,83 @@ export default function FileUpload() {
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
+  // Add these new state variables
+  const [selectedGender, setSelectedGender] = useState<keyof typeof GENDER_MAP>("male");
+  const [selectedAgeRange, setSelectedAgeRange] = useState<keyof typeof AGE_RANGE_MAP>("18–23");
+  const [selectedConditions, setSelectedConditions] = useState<Set<keyof typeof CONDITION_MAP>>(new Set());
 
-  const handleUpload = () => {
-    if (files.length === 0) return
-
-    setIsUploading(true)
-
-    // Simulate upload progress
-    let currentProgress = 0
-    const interval = setInterval(() => {
-      currentProgress += 5
-      setProgress(currentProgress)
-
-      if (currentProgress >= 100) {
-        clearInterval(interval)
-        setTimeout(() => {
-          setIsUploading(false)
-          setFiles([])
-          setProgress(0)
-          setPrice("49.99")
-          setDescription("")
-          setCategory("")
-          setSampleSize("100")
-          setTimeframe("3 months")
-        }, 500)
+  // Add this function to handle condition changes
+  const handleConditionChange = (condition: keyof typeof CONDITION_MAP, checked: boolean) => {
+    setSelectedConditions((prev) => {
+      const updated = new Set(prev);
+      if (checked) {
+        updated.add(condition);
+      } else {
+        updated.delete(condition);
       }
-    }, 200)
-  }
+      return updated;
+    });
+  };
+
+  const handleUpload = async () => {
+    if (files.length === 0) return;
+    setIsUploading(true);
+
+    try {
+      console.log('Starting upload process...');
+      console.log('Files to upload:', files);
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        console.log(`Uploading file ${i + 1}:`, file.name);
+        try {
+          const hash = await uploadToIPFS(file);
+          console.log(`Success! IPFS hash:`, hash);
+
+          const genderInt = GENDER_MAP[selectedGender];
+          const ageRangeInt = AGE_RANGE_MAP[selectedAgeRange];
+            const conditionsInt = Array.from(selectedConditions)
+            .map((condition) => CONDITION_MAP[condition])
+            .join(",");
+          
+          const bmi = weight / (height * height);
+          console.log(`Calculated BMI: ${bmi.toFixed(2)}`);
+          console.log(`Gender: ${selectedGender} (${genderInt}), Age Range: ${selectedAgeRange} (${ageRangeInt}), Conditions: ${Array.from(selectedConditions).join(', ')} (${conditionsInt})`);
+          
+          const healthMetricTypes = 1;
+
+          await submitDatasetToContract(hash, {
+            agerange: ageRangeInt.toString(),
+            gender: genderInt.toString(),
+            conditions: conditionsInt,
+            bmi: bmi.toFixed(2).toString(),
+            price: price,
+            description: description,
+            sampleSize: sampleSize,
+            timeframe: timeframe,
+            healthMetricTypes: healthMetricTypes,
+          });
+          
+          console.log("Dataset submitted to smart contract");
+          const progress = ((i + 1) / files.length) * 100;
+          setProgress(Math.round(progress));
+        } catch (error) {
+          console.error(`Error uploading file ${file.name}:`, error);
+          throw error;
+        }
+      }
+
+      setFiles([]);
+      toast.success('Files uploaded successfully!');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('Upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  
 
   return (
     <div className="space-y-4">
@@ -167,33 +209,86 @@ export default function FileUpload() {
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Label htmlFor="gender">Gender</Label>
+                <Select onValueChange={(value) => console.log("Selected gender:", value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    {healthCategories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sampleSize">Sample Size</Label>
-                <Input
-                  id="sampleSize"
-                  type="number"
-                  min="1"
-                  value={sampleSize}
-                  onChange={(e) => setSampleSize(e.target.value)}
-                />
-              </div>
+                <div className="space-y-2">
+                <Label htmlFor="ageRange">Age Range</Label>
+                <Select onValueChange={(value) => console.log("Selected age range:", value)}>
+                  <SelectTrigger>
+                  <SelectValue placeholder="Select age range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectItem value="18–23">18–23</SelectItem>
+                  <SelectItem value="24–29">24–29</SelectItem>
+                  <SelectItem value="30–35">30–35</SelectItem>
+                  <SelectItem value="36–41">36–41</SelectItem>
+                  <SelectItem value="42–47">42–47</SelectItem>
+                  <SelectItem value="48–53">48–53</SelectItem>
+                  <SelectItem value="54–59">54–59</SelectItem>
+                  <SelectItem value="60–65">60–65</SelectItem>
+                  <SelectItem value="66–71">66–71</SelectItem>
+                  <SelectItem value="72–77">72–77</SelectItem>
+                  <SelectItem value="78–83">78–83</SelectItem>
+                  <SelectItem value="84–89">84–89</SelectItem>
+                  <SelectItem value="90–95">90–95</SelectItem>
+                  <SelectItem value="96–100">96–100</SelectItem>
+                  </SelectContent>
+                </Select>
+                </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="height-weight">Height & Weight</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                      id="height"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Height (m)"
+                      onChange={(e) => setHeight(parseFloat(e.target.value))}
+                      />
+                      <Input
+                      id="weight"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      placeholder="Weight (kg)"
+                      onChange={(e) => setWeight(parseFloat(e.target.value))}
+                      />
+                    </div>
+                    </div>
+                // Replace the existing conditions mapping section with:
+                <div className="space-y-2">
+                  <Label htmlFor="conditions">Conditions</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {["Diabetes", "Hypertension", "Asthma", "Cancer", "Heart Disease", "Obesity", "Arthritis", "Depression", "Other"].map((condition) => (
+                      <div key={condition} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={condition}
+                          value={condition}
+                          checked={selectedConditions.has(condition as keyof typeof CONDITION_MAP)}
+                          onChange={(e) => handleConditionChange(condition as keyof typeof CONDITION_MAP, e.target.checked)}
+                          className="h-4 w-4"
+                        />
+                        <Label htmlFor={condition} className="text-sm">
+                          {condition}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                              
 
               <div className="space-y-2">
                 <Label htmlFor="timeframe">Timeframe</Label>
@@ -218,7 +313,7 @@ export default function FileUpload() {
             </div>
           </div>
 
-          {isUploading ? (
+          {isUploading? (
             <div className="space-y-2">
               <Progress value={progress} className="h-2 w-full" />
               <p className="text-xs text-muted-foreground">Uploading... {progress}%</p>
