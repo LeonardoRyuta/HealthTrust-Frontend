@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { useEffect } from "react";
 
 interface Dataset {
   datasetId: string;
@@ -36,8 +37,13 @@ const AGE_RANGE_MAP = [
 ];
 const BMI_CATEGORY_MAP = ["Underweight", "Normal", "Overweight", "Obese", "Severely Obese", "Morbidly Obese"];
 
-export default function DatasetModal({ dataset, index, isOpen, onClose }: DatasetModalProps) {
+export default function DatasetModal({ dataset, index, isOpen, onClose }: any) {
   if (!dataset) return null;
+
+  useEffect(() => {
+    console.log("Dataset details:", dataset);
+    console.log("Index:", index);
+  }, [dataset, index]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -51,17 +57,17 @@ export default function DatasetModal({ dataset, index, isOpen, onClose }: Datase
               <InfoBox
                 icon={<UserIcon className="h-4 w-4" />}
                 label="Gender"
-                value={GENDER_MAP[dataset?.gender ?? -1] ?? "Unknown"}
+                value={dataset.gender ?? "Unknown"}
               />
               <InfoBox
                 icon={<CalendarIcon className="h-4 w-4" />}
                 label="Age Range"
-                value={AGE_RANGE_MAP[dataset?.ageRange ?? -1] ?? "Unknown"}
+                value={dataset?.ageRange  ?? "Unknown"}
               />
               <InfoBox
                 icon={<ActivityIcon className="h-4 w-4" />}
                 label="BMI Category"
-                value={BMI_CATEGORY_MAP[dataset?.bmiCategory ?? -1] ?? "Unknown"}
+                value={dataset?.bmiCategory ?? "Unknown"}
               />
               <InfoBox
                 icon={<HeartIcon className="h-4 w-4" />}

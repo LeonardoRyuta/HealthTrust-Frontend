@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import abi from './abi.json';
-import { AGE_RANGE_MAP } from '@/components/constant_mappings';
+import { AGE_RANGE_MAP, AGE_RANGE_MAP_INVERSE, GENDER_MAP_INVERSE, CONDITION_MAP_INVERSE } from '@/components/constant_mappings';
 import { Console } from 'console';
 
 // Extend window type to include ethereum
@@ -10,7 +10,23 @@ declare global {
   }
 }
 
-const CONTRACT_ADDRESS = "0xBb18E81753179d29071772DcEf8f8B2dcd368184";
+const CONTRACT_ADDRESS = "0xe041b50CA3ED1c23F8D7139a11Ed107a010937D5";
+
+export async function getPubKey() {
+  if (!window.ethereum) throw new Error("MetaMask not found");
+
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+
+    const pubKey = await contract.getPubKey();
+
+    return pubKey;
+  } catch (error) {
+    console.error("Error getting public key:", error);
+    throw error;
+  }
+}
 
 export async function submitDatasetToContract(
   ipfsHash: string,
@@ -87,30 +103,27 @@ export async function getAllDatasets() {
         ageRange: Number(dataset[2]),
         bmiCategory: Number(dataset[3]),
         chronicConditions: dataset[4].map((condition: any) => Number(condition)),
-        healthMetricTypes: dataset[5].map((type: any) => Number(type)),
         owner: dataset[6],
         isActive: dataset[7],
-      }
+      } // 5 is a list of things that arent needed and we forgor to remove it so we are removing it now
 
       datasetObjs.push(datasetObj);
   
       datasets.push({
         id: i,
         name: `Dataset #${i}`,
-        description: `Uploaded by ${dataset.owner}`,
-        price: ethers.formatEther(dataset.price || "0"),
-        size: `${Math.floor(Math.random() * 500 + 100)} KB`,
-        category: AGE_RANGE_MAP[dataset.ageRange] ?? "Unknown",
-        type: "json",
-        sampleSize: dataset.sampleSize ?? 100,
-        timeframe: "6 months",
-        date: Date.now() / 1000, // or replace with on-chain timestamp if you store it
-        uploadedBy: dataset.owner,
+        description: `Uploaded by ${datasetObj.owner}`,
+        gender: GENDER_MAP_INVERSE[datasetObj.gender as keyof typeof GENDER_MAP_INVERSE],
+        ageRange: AGE_RANGE_MAP_INVERSE[datasetObj.ageRange as keyof typeof AGE_RANGE_MAP_INVERSE],
+        chronicConditions: datasetObj.chronicConditions.map((condition: any) => CONDITION_MAP_INVERSE[condition as keyof typeof CONDITION_MAP_INVERSE]),
+        bmiCategory: datasetObj.bmiCategory,
+        isActive: datasetObj.isActive,
+        owner: datasetObj.owner,
       });
     }
 
     console.log("Fetched datasets:", datasetObjs);  
-  
+    console.log("Formatted datasets:", datasets);
     return datasets;
   }
 
