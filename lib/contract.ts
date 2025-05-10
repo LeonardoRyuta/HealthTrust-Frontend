@@ -63,7 +63,7 @@ export async function submitDatasetToContract(
   }
 }
 
-export async function getAllDatasets(): Promise<Document[]> {
+export async function getAllDatasets() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
@@ -71,15 +71,45 @@ export async function getAllDatasets(): Promise<Document[]> {
     const datasetCount = await contract.datasetCount();
     console.log("Total datasets:", datasetCount);
 
-    const datasets: Document[] = [];
+    let datasets = [];
+    let datasetObjs = [];
   
     for (let i = 0; i < Number(datasetCount); i++) {
-      const dataset = await contract.datasets(i);
-      console.log("DatasetAAAA:", dataset);
-      const datasetId = dataset[1].toString();
-      console.log("Dataset ID:", datasetId);
-      
+      console.log("Fetching dataset with ID:", i);
+      const dataset = await contract.getDataset(i);
+
+      console.log("Dataset details:", dataset);
+      console.log("Dataset details:", dataset[0]);
+
+      const datasetObj = {
+        ipfs: dataset[0],
+        gender: Number(dataset[1]),
+        ageRange: Number(dataset[2]),
+        bmiCategory: Number(dataset[3]),
+        chronicConditions: dataset[4].map((condition: any) => Number(condition)),
+        healthMetricTypes: dataset[5].map((type: any) => Number(type)),
+        owner: dataset[6],
+        isActive: dataset[7],
+      }
+
+      datasetObjs.push(datasetObj);
+  
+      datasets.push({
+        id: i,
+        name: `Dataset #${i}`,
+        description: `Uploaded by ${dataset.owner}`,
+        price: ethers.formatEther(dataset.price || "0"),
+        size: `${Math.floor(Math.random() * 500 + 100)} KB`,
+        category: AGE_RANGE_MAP[dataset.ageRange] ?? "Unknown",
+        type: "json",
+        sampleSize: dataset.sampleSize ?? 100,
+        timeframe: "6 months",
+        date: Date.now() / 1000, // or replace with on-chain timestamp if you store it
+        uploadedBy: dataset.owner,
+      });
     }
+
+    console.log("Fetched datasets:", datasetObjs);  
   
     return datasets;
   }

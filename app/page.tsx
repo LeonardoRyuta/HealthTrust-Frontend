@@ -12,6 +12,8 @@ export default function Home() {
   const [dataset, setDatasets] = useState<Dataset[]>([])
 
   useEffect(() => {
+    console.log("Rendered Datasets:", dataset)
+
     async function fetchDocuments() {
       try {
         const result = await getAllDatasets()
@@ -53,9 +55,6 @@ export default function Home() {
         </p>
       </div>
       <DatasetList datasets={dataset} showBuyButton={true} onBuy={handleBuyDocument} />
-      {console.log("Rendered Datasets:", dataset)}
-
-
     </div>
 
   )
