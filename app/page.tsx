@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import DocumentList from "@/components/document-list"
+import DocumentList from "@/components/dataset-list"
 import { getAllDatasets, makePurchase } from "@/lib/contract"
 import type { Dataset } from "@/lib/types"
 import { useToast } from "@/components/ui/use-toast"
-import DatasetList from "@/components/document-list"
+import DatasetList from "@/components/dataset-list"
 
 export default function Home() {
   const { toast } = useToast()
@@ -18,7 +18,7 @@ export default function Home() {
 
         // Defensive fallback if it's an object instead of an array
         const cleaned = Array.isArray(result) ? result : Object.values(result)
-        setDatasets(cleaned)
+        // setDatasets(cleaned)
       } catch (err) {
         console.error("Failed to fetch datasets", err)
         setDatasets([])
@@ -30,7 +30,7 @@ export default function Home() {
 
   }, [])
 
-  const handleBuyDocument = (dataset: Dataset) => {
+  const handleBuyDocument = async (dataset: Dataset) => {
 
     dataset.price = 4 // Ensure proper integer handling
     dataset.tokenAddress = "0x96B327504934Be375d5EC1F88a8B2Bba0FaC63C7"
@@ -39,7 +39,7 @@ export default function Home() {
     console.log("Dataset price:", dataset.price)
     console.log("Dataset token address:", dataset.tokenAddress)
     
-    const orderId = makePurchase(dataset.id, dataset.price.toString(), dataset.tokenAddress)
+    const orderId = await makePurchase(dataset.id, dataset.price.toString(), dataset.tokenAddress)
 
     console.log("Order ID post request:", orderId)
   }

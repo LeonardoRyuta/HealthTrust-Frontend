@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import abi from './abi.json';
 import { AGE_RANGE_MAP } from '@/components/constant_mappings';
+import { Console } from 'console';
 
 // Extend window type to include ethereum
 declare global {
@@ -53,12 +54,9 @@ export async function submitDatasetToContract(
       [metadata.healthMetricTypes]
     );
 
-    console.log("Transaction sent:", tx.hash);
+    console.log("Transaction sent:", tx);
 
-    const receipt = await tx.wait(); // Waits for confirmation
-    console.log("Transaction confirmed:", receipt);
-
-    return receipt.hash;
+    return tx;
   } catch (error) {
     console.error("Error interacting with contract:", error);
     throw error;
@@ -119,12 +117,12 @@ export async function makePurchase(datasetId: string, price: string, tokenAddres
     });
 
     const tx = await contract.orderRequest(datasetIdBN, priceInWei, tokenAddress);
-    console.log("Transaction sent:", tx.hash);
+    console.log("Transaction details:", tx);
 
-    const receipt = await tx.wait();
-    console.log("Transaction confirmed:", receipt);
+    const receipt = await tx.wait(); // Waits for confirmation
+    
 
-    return receipt;
+    return tx;
   } catch (error) {
     console.error("Error interacting with contract:", error);
     throw error;

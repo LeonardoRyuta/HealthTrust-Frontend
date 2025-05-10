@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import FileUpload from "@/components/file-upload"
-import DocumentList from "@/components/document-list"
+import DocumentList from "@/components/dataset-list"
 import { myUploads, purchasedDocuments, mockUser } from "@/lib/mock-data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
