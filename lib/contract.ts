@@ -63,7 +63,7 @@ export async function submitDatasetToContract(
   }
 }
 
-export async function getAllDatasets(): Promise<Document[]> {
+export async function getAllDatasets() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
@@ -71,13 +71,28 @@ export async function getAllDatasets(): Promise<Document[]> {
     const datasetCount = await contract.datasetCount();
     console.log("Total datasets:", datasetCount);
 
-    const datasets: Document[] = [];
+    let datasets = [];
+    let datasetObjs = [];
   
     for (let i = 0; i < Number(datasetCount); i++) {
-      const dataset = await contract.datasets(i);
-  
-      // Skip inactive datasets
-      if (!dataset.isActive) continue;
+      console.log("Fetching dataset with ID:", i);
+      const dataset = await contract.getDataset(i);
+
+      console.log("Dataset details:", dataset);
+      console.log("Dataset details:", dataset[0]);
+
+      const datasetObj = {
+        ipfs: dataset[0],
+        gender: Number(dataset[1]),
+        ageRange: Number(dataset[2]),
+        bmiCategory: Number(dataset[3]),
+        chronicConditions: dataset[4].map((condition: any) => Number(condition)),
+        healthMetricTypes: dataset[5].map((type: any) => Number(type)),
+        owner: dataset[6],
+        isActive: dataset[7],
+      }
+
+      datasetObjs.push(datasetObj);
   
       datasets.push({
         id: i,
@@ -93,6 +108,8 @@ export async function getAllDatasets(): Promise<Document[]> {
         uploadedBy: dataset.owner,
       });
     }
+
+    console.log("Fetched datasets:", datasetObjs);  
   
     return datasets;
   }

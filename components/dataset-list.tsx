@@ -78,7 +78,7 @@ export default function DatasetList({ datasets, showBuyButton = true, onBuy }: D
 
       <DatasetModal
         dataset={selectedDataset}
-        index={datasets.findIndex(d => d === selectedDataset)}
+        index={datasets?.findIndex(d => d === selectedDataset)}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onBuy={showBuyButton && onBuy ? handleBuy : undefined}
