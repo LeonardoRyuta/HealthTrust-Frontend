@@ -75,23 +75,10 @@ export async function getAllDatasets(): Promise<Document[]> {
   
     for (let i = 0; i < Number(datasetCount); i++) {
       const dataset = await contract.datasets(i);
-  
-      // Skip inactive datasets
-      if (!dataset.isActive) continue;
-  
-      datasets.push({
-        id: i,
-        name: `Dataset #${i}`,
-        description: `Uploaded by ${dataset.owner}`,
-        price: ethers.formatEther(dataset.price || "0"),
-        size: `${Math.floor(Math.random() * 500 + 100)} KB`,
-        category: AGE_RANGE_MAP[dataset.ageRange] ?? "Unknown",
-        type: "json",
-        sampleSize: dataset.sampleSize ?? 100,
-        timeframe: "6 months",
-        date: Date.now() / 1000, // or replace with on-chain timestamp if you store it
-        uploadedBy: dataset.owner,
-      });
+      console.log("DatasetAAAA:", dataset);
+      const datasetId = dataset[1].toString();
+      console.log("Dataset ID:", datasetId);
+      
     }
   
     return datasets;
@@ -117,10 +104,13 @@ export async function makePurchase(datasetId: string, price: string, tokenAddres
     });
 
     const tx = await contract.orderRequest(datasetIdBN, priceInWei, tokenAddress);
-    console.log("Transaction details:", tx);
+    const receipt = await tx.wait();
 
-    const receipt = await tx.wait(); // Waits for confirmation
-    
+    const event = receipt.logs.find((log: any) =>
+      log.address?.toLowerCase() === contract.address.toLowerCase()
+    );
+
+    console.log("Raw logs:", receipt.logs);
 
     return tx;
   } catch (error) {
