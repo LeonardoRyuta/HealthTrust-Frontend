@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react"
 import DocumentList from "@/components/dataset-list"
-import { getAllDatasets, makePurchase } from "@/lib/contract"
+import { getAllDatasets, getPubKey, makePurchase } from "@/lib/contract"
 import type { Dataset } from "@/lib/types"
 import { useToast } from "@/components/ui/use-toast"
 import DatasetList from "@/components/dataset-list"
 
 export default function Home() {
   const { toast } = useToast()
-  const [dataset, setDatasets] = useState<Dataset[]>([])
+  const [dataset, setDatasets] = useState([])
 
   useEffect(() => {
     console.log("Rendered Datasets:", dataset)
@@ -20,7 +20,8 @@ export default function Home() {
 
         // Defensive fallback if it's an object instead of an array
         const cleaned = Array.isArray(result) ? result : Object.values(result)
-        // setDatasets(cleaned)
+        console.log("Fetched datasets:", cleaned)
+        setDatasets(cleaned)
       } catch (err) {
         console.error("Failed to fetch datasets", err)
         setDatasets([])
@@ -32,6 +33,10 @@ export default function Home() {
 
   }, [])
 
+  useEffect(() => {
+    console.log("Fetched datasets:", dataset)
+  }, [dataset])
+
   const handleBuyDocument = async (dataset: Dataset) => {
 
     dataset.price = 4 // Ensure proper integer handling
@@ -40,16 +45,17 @@ export default function Home() {
     console.log("Dataset ID:", dataset.id)
     console.log("Dataset price:", dataset.price)
     console.log("Dataset token address:", dataset.tokenAddress)
-    
+
     const orderId = await makePurchase(dataset.id, dataset.price.toString(), dataset.tokenAddress)
 
     console.log("Order ID post request:", orderId)
   }
-
+  
   return (
     <div className="container py-8">
       <div className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Health Data Marketplace</h1>
+        <button onClick={test}>click me</button>
         <p className="text-muted-foreground">
           Browse and purchase anonymized health datasets from trusted providers.
         </p>

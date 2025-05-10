@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DatabaseIcon } from "lucide-react"
 import type { Dataset } from "@/lib/types"
 
@@ -35,10 +35,15 @@ export default function DatasetList({ datasets, showBuyButton = true, onBuy }: D
   }
 
   const handleBuy = (dataset: Dataset) => {
+    console.log("Buying dataset:", dataset)
     if (onBuy) {
       onBuy(dataset)
     }
   }
+
+  useEffect(() => {
+    console.log("datasetsdddd:", datasets)
+  }, [datasets])
 
   return (
     <>
@@ -52,7 +57,7 @@ export default function DatasetList({ datasets, showBuyButton = true, onBuy }: D
                   <CardTitle className="text-lg">Dataset #{index}</CardTitle>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {dataset.ageRange ?? "Unknown"}
+                  {dataset.ageRange ?? "Unknown"} yr
                 </Badge>
               </div>
             </CardHeader>
@@ -78,7 +83,7 @@ export default function DatasetList({ datasets, showBuyButton = true, onBuy }: D
 
       <DatasetModal
         dataset={selectedDataset}
-        index={datasets?.findIndex(d => d === selectedDataset)}
+        // index={datasets?.findIndex(d => d === selectedDataset)}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onBuy={showBuyButton && onBuy ? handleBuy : undefined}

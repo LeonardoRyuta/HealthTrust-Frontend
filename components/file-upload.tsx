@@ -12,12 +12,12 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { File } from "lucide-react"
+import { File as FileIcon } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { uploadToIPFS } from "@/lib/ipfs"
-import { submitDatasetToContract } from "@/lib/contract"
+import { getPubKey, submitDatasetToContract } from "@/lib/contract"
 import { GENDER_MAP, AGE_RANGE_MAP, CONDITION_MAP } from '@/components/constant_mappings';
-const FileIcon = File
+import { encryptForBackend } from "@/lib/crypto"
 
 
 export default function FileUpload() {
@@ -91,7 +91,26 @@ export default function FileUpload() {
         const file = files[i];
         console.log(`Uploading file ${i + 1}:`, file.name);
         try {
-          const hash = await uploadToIPFS(file);
+          const pubKey = await getPubKey();
+
+          if (!pubKey) {
+            throw new Error("Public key not found");
+          }
+
+          // Read file content as string for encryption
+          const fileReader = new FileReader();
+          const fileContent = await new Promise<string>((resolve) => {
+            fileReader.onload = (e) => resolve(e.target?.result as string);
+            fileReader.readAsText(file);
+          });
+          
+          const encryptedFile = await encryptForBackend(fileContent);
+          
+          // Convert encrypted string back to a File object
+          const encryptedBlob = new Blob([encryptedFile], { type: file.type });
+          const encryptedFileObj = new File([encryptedBlob], file.name, { type: file.type });
+          
+          const hash = await uploadToIPFS(encryptedFileObj);
           console.log(`Success! IPFS hash:`, hash);
 
           const genderInt = GENDER_MAP[selectedGender];
