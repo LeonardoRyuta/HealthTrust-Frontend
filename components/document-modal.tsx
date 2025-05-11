@@ -11,10 +11,9 @@ import {
 } from "lucide-react"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { useEffect } from "react";
 
 interface Dataset {
-  datasetId: string;
+  dataEntryId: string;
   owner: string;
   gender: number;
   ageRange: number;
@@ -31,19 +30,20 @@ interface DatasetModalProps {
   onClose: () => void;
 }
 
-const GENDER_MAP = ["Unknown", "Male", "Female"];
+const GENDER_MAP = ["Male", "Female", "Unknown"];
 const AGE_RANGE_MAP = [
-  "0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"
+  "18-22", "23-27", "28-32", "33-37", "38-42", "43-47", "48-52", "53-57", "58-62", 
+  "63-67", "68-72", "73-77", "78-82", "83-87", "88-92", "93-97", "98-100"
 ];
+const CONDITION_MAP = [
+  "None", "Diabetes", "Hypertension", "Asthma", "Cancer","Heart Disease","Obesity",
+  "Arthritis", "Depression", "Other"
+];
+
 const BMI_CATEGORY_MAP = ["Underweight", "Normal", "Overweight", "Obese", "Severely Obese", "Morbidly Obese"];
 
-export default function DatasetModal({ dataset, index, isOpen, onClose }: any) {
+export default function DatasetModal({ dataset, index, isOpen, onClose }: DatasetModalProps) {
   if (!dataset) return null;
-
-  useEffect(() => {
-    console.log("Dataset details:", dataset);
-    console.log("Index:", index);
-  }, [dataset, index]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -55,42 +55,44 @@ export default function DatasetModal({ dataset, index, isOpen, onClose }: any) {
         <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <InfoBox
-                icon={<UserIcon className="h-4 w-4" />}
-                label="Gender"
-                value={dataset.gender ?? "Unknown"}
+              icon={<UserIcon className="h-4 w-4" />}
+              label="Gender"
+              value={GENDER_MAP[dataset?.gender ?? -1] ?? "Unknown"}
               />
               <InfoBox
-                icon={<CalendarIcon className="h-4 w-4" />}
-                label="Age Range"
-                value={dataset?.ageRange  ?? "Unknown"}
+              icon={<CalendarIcon className="h-4 w-4" />}
+              label="Age Range"
+              value={AGE_RANGE_MAP[dataset?.ageRange ?? -1] ?? "Unknown"}
               />
               <InfoBox
-                icon={<ActivityIcon className="h-4 w-4" />}
-                label="BMI Category"
-                value={dataset?.bmiCategory ?? "Unknown"}
+              icon={<ActivityIcon className="h-4 w-4" />}
+              label="BMI Category"
+              value={BMI_CATEGORY_MAP[dataset?.bmiCategory ?? -1] ?? "Unknown"}
               />
               <InfoBox
-                icon={<HeartIcon className="h-4 w-4" />}
-                label="Conditions"
-                value={
-                  Array.isArray(dataset?.chronicConditions)
-                    ? dataset.chronicConditions.join(", ")
-                    : "None"
-                }
+              icon={<HeartIcon className="h-4 w-4" />}
+              label="Conditions"
+              value={
+                Array.isArray(dataset?.chronicConditions)
+                ? dataset.chronicConditions
+                  .map((condition) => CONDITION_MAP[condition] ?? "Unknown")
+                  .join(", ")
+                : "None"
+              }
               />
               <InfoBox
-                icon={<StethoscopeIcon className="h-4 w-4" />}
-                label="Health Metrics"
-                value={
-                  Array.isArray(dataset?.healthMetricTypes)
-                    ? dataset.healthMetricTypes.join(", ")
-                    : "N/A"
-                }
+              icon={<StethoscopeIcon className="h-4 w-4" />}
+              label="Health Metrics"
+              value={
+                Array.isArray(dataset?.healthMetricTypes)
+                ? dataset.healthMetricTypes.join(", ")
+                : "N/A"
+              }
               />
               <InfoBox
-                icon={<GlobeIcon className="h-4 w-4" />}
-                label="Owner"
-                value={dataset?.owner ? dataset.owner.slice(0, 10) + "..." : "Unknown"}
+              icon={<GlobeIcon className="h-4 w-4" />}
+              label="Owner"
+              value={dataset?.owner ? dataset.owner.slice(0, 10) + "..." : "Unknown"}
               />
             </div>
         </div>

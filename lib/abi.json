@@ -1,11 +1,11 @@
-[
+ [
     {
       "anonymous": false,
       "inputs": [
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         },
         {
@@ -24,7 +24,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         },
         {
@@ -43,7 +43,7 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         },
         {
@@ -71,24 +71,65 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "datasetId",
-          "type": "uint256"
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
         },
         {
           "internalType": "uint256",
-          "name": "orderId",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "completeOrder",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "name": "ageIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "datasetCount",
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bmiIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "combinedIndex",
       "outputs": [
         {
           "internalType": "uint256",
@@ -103,12 +144,35 @@
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "dataentryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "orderId",
+          "type": "uint256"
+        }
+      ],
+      "name": "completeOrder",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "",
           "type": "uint256"
         }
       ],
-      "name": "datasets",
+      "name": "entries",
       "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "dataentryId",
+          "type": "uint256"
+        },
         {
           "internalType": "string",
           "name": "ipfsHash",
@@ -145,10 +209,71 @@
     },
     {
       "inputs": [],
+      "name": "entryCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "genderIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "ageRange",
+          "type": "uint8"
+        }
+      ],
+      "name": "getAgeIndex",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "getAllDatasets",
       "outputs": [
         {
           "components": [
+            {
+              "internalType": "uint256",
+              "name": "dataentryId",
+              "type": "uint256"
+            },
             {
               "internalType": "string",
               "name": "ipfsHash",
@@ -175,11 +300,6 @@
               "type": "uint8[]"
             },
             {
-              "internalType": "uint8[]",
-              "name": "healthMetricTypes",
-              "type": "uint8[]"
-            },
-            {
               "internalType": "address",
               "name": "owner",
               "type": "address"
@@ -190,9 +310,28 @@
               "type": "bool"
             }
           ],
-          "internalType": "struct HealthTrust.Dataset[]",
+          "internalType": "struct HealthTrust.DataEntry[]",
           "name": "out",
           "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "bmiCategory",
+          "type": "uint8"
+        }
+      ],
+      "name": "getBmiIndex",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
@@ -211,6 +350,11 @@
         {
           "components": [
             {
+              "internalType": "uint256",
+              "name": "dataentryId",
+              "type": "uint256"
+            },
+            {
               "internalType": "string",
               "name": "ipfsHash",
               "type": "string"
@@ -236,11 +380,6 @@
               "type": "uint8[]"
             },
             {
-              "internalType": "uint8[]",
-              "name": "healthMetricTypes",
-              "type": "uint8[]"
-            },
-            {
               "internalType": "address",
               "name": "owner",
               "type": "address"
@@ -251,7 +390,7 @@
               "type": "bool"
             }
           ],
-          "internalType": "struct HealthTrust.Dataset",
+          "internalType": "struct HealthTrust.DataEntry",
           "name": "",
           "type": "tuple"
         }
@@ -292,6 +431,120 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "gender",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "ageRange",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "bmiCategory",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "illness",
+          "type": "uint8"
+        }
+      ],
+      "name": "getDatasetsWith",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "dataentryId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "ipfsHash",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8",
+              "name": "gender",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "ageRange",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "bmiCategory",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8[]",
+              "name": "chronicConditions",
+              "type": "uint8[]"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct HealthTrust.DataEntry[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "gender",
+          "type": "uint8"
+        }
+      ],
+      "name": "getGenderIndex",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "illnessCode",
+          "type": "uint8"
+        }
+      ],
+      "name": "getIllnessIndex",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "getPubKey",
       "outputs": [
@@ -308,7 +561,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         },
         {
@@ -328,7 +581,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "datasetId",
+              "name": "dataentryId",
               "type": "uint256"
             },
             {
@@ -371,6 +624,30 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "illnessIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "orderCount",
       "outputs": [
@@ -387,7 +664,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         },
         {
@@ -434,7 +711,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         },
         {
@@ -485,6 +762,39 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "returnIndexedSets",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "string",
@@ -523,18 +833,13 @@
           "internalType": "uint8[]",
           "name": "chronicConditions",
           "type": "uint8[]"
-        },
-        {
-          "internalType": "uint8[]",
-          "name": "healthMetricTypes",
-          "type": "uint8[]"
         }
       ],
       "name": "submitDataset",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "datasetId",
+          "name": "dataentryId",
           "type": "uint256"
         }
       ],

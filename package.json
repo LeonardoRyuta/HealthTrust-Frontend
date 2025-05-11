@@ -48,6 +48,7 @@
     "crypto-browserify": "^3.12.1",
     "date-fns": "latest",
     "ecies-geth": "^1.7.5",
+    "eciesjs": "^0.4.14",
     "embla-carousel-react": "8.5.1",
     "ethers": "^6.14.0",
     "input-otp": "1.4.1",

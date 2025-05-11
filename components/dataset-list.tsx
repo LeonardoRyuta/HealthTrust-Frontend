@@ -23,9 +23,12 @@ interface DatasetListProps {
   onBuy?: (dataset: Dataset) => void
 }
 
+
+
 export default function DatasetList({ datasets, showBuyButton = true, onBuy }: DatasetListProps) {
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  console.log("selectedDataset:", selectedDataset)
 
   const getIcon = () => <DatabaseIcon className="h-5 w-5 text-emerald-600" />
 
@@ -42,7 +45,7 @@ export default function DatasetList({ datasets, showBuyButton = true, onBuy }: D
   }
 
   useEffect(() => {
-    console.log("datasetsdddd:", datasets)
+    //console.log("datasetsdddd:", datasets)
   }, [datasets])
 
   return (

@@ -27,13 +27,13 @@ export const AGE_RANGE_MAP_INVERSE = {
 export const CONDITION_MAP = {
   'Diabetes': 1,
   'Hypertension': 2,
-  'Asthma': 4,
-  'Cancer': 8,
-  'Heart Disease': 16,
-  'Obesity': 32,
-  'Arthritis': 64,
-  'Depression': 128,
-  'Other': 256
+  'Asthma': 3,
+  'Cancer': 4,
+  'Heart Disease': 5,
+  'Obesity': 6,
+  'Arthritis': 7,
+  'Depression': 8,
+  'Other': 9
 };
 
 export const CONDITION_MAP_INVERSE = {

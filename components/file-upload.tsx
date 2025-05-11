@@ -91,27 +91,27 @@ export default function FileUpload() {
         const file = files[i];
         console.log(`Uploading file ${i + 1}:`, file.name);
         try {
-          const pubKey = await getPubKey();
+          // const pubKey = await getPubKey();
 
-          if (!pubKey) {
-            throw new Error("Public key not found");
-          }
+          // if (!pubKey) {
+          //   throw new Error("Public key not found");
+          // }
 
-          // Read file content as string for encryption
+          // // Read file content as string for encryption
           const fileReader = new FileReader();
           const fileContent = await new Promise<string>((resolve) => {
             fileReader.onload = (e) => resolve(e.target?.result as string);
             fileReader.readAsText(file);
           });
           
-          const encryptedFile = await encryptForBackend(fileContent);
+          // const encryptedFile = await encryptForBackend(fileContent);
           
-          // Convert encrypted string back to a File object
-          const encryptedBlob = new Blob([encryptedFile], { type: file.type });
-          const encryptedFileObj = new File([encryptedBlob], file.name, { type: file.type });
+          // // Convert encrypted string back to a File object
+          // const encryptedBlob = new Blob([encryptedFile], { type: file.type });
+          // const encryptedFileObj = new File([encryptedBlob], file.name, { type: file.type });
           
-          const hash = await uploadToIPFS(encryptedFileObj);
-          console.log(`Success! IPFS hash:`, hash);
+          const hash = await uploadToIPFS(file);
+          //console.log(`Success! IPFS hash:`, hash);
 
           const genderInt = GENDER_MAP[selectedGender];
           const ageRangeInt = AGE_RANGE_MAP[selectedAgeRange];
@@ -124,6 +124,7 @@ export default function FileUpload() {
           console.log(`Gender: ${selectedGender} (${genderInt}), Age Range: ${selectedAgeRange} (${ageRangeInt}), Conditions: ${Array.from(selectedConditions).join(', ')} (${conditionsInt})`);
           
           const healthMetricTypes = 1;
+          console.log("File content:", fileContent);
 
           await submitDatasetToContract(hash, {
             agerange: ageRangeInt.toString(),
@@ -134,7 +135,6 @@ export default function FileUpload() {
             description: description,
             sampleSize: sampleSize,
             timeframe: timeframe,
-            healthMetricTypes: healthMetricTypes,
           });
           
           console.log("Dataset submitted to smart contract");

@@ -12,6 +12,7 @@ export default function Home() {
   const [dataset, setDatasets] = useState([])
 
   useEffect(() => {
+
     console.log("Rendered Datasets:", dataset)
 
     async function fetchDocuments() {
@@ -20,8 +21,10 @@ export default function Home() {
 
         // Defensive fallback if it's an object instead of an array
         const cleaned = Array.isArray(result) ? result : Object.values(result)
-        console.log("Fetched datasets:", cleaned)
+        console.log("Fetched cleaned:", cleaned)
+
         setDatasets(cleaned)
+
       } catch (err) {
         console.error("Failed to fetch datasets", err)
         setDatasets([])
@@ -29,12 +32,12 @@ export default function Home() {
     }
 
     fetchDocuments()
-    console.log("Datasets:", dataset)
+    //console.log("Datasets:", dataset)
 
   }, [])
 
   useEffect(() => {
-    console.log("Fetched datasets:", dataset)
+    //console.log("Fetched datasets:", dataset)
   }, [dataset])
 
   const handleBuyDocument = async (dataset: Dataset) => {
@@ -42,11 +45,12 @@ export default function Home() {
     dataset.price = 4 // Ensure proper integer handling
     dataset.tokenAddress = "0x96B327504934Be375d5EC1F88a8B2Bba0FaC63C7"
     console.log("Buying dataset:", dataset)
-    console.log("Dataset ID:", dataset.id)
+    console.log("Dataset ID:", dataset.ipfsHash)
     console.log("Dataset price:", dataset.price)
     console.log("Dataset token address:", dataset.tokenAddress)
+    console.log(dataset,"AAAAAA")
 
-    const orderId = await makePurchase(dataset.id, dataset.price.toString(), dataset.tokenAddress)
+    const orderId = await makePurchase(dataset.dataEntryId, dataset.price.toString(), dataset.tokenAddress)
 
     console.log("Order ID post request:", orderId)
   }
@@ -55,7 +59,6 @@ export default function Home() {
     <div className="container py-8">
       <div className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Health Data Marketplace</h1>
-        <button onClick={test}>click me</button>
         <p className="text-muted-foreground">
           Browse and purchase anonymized health datasets from trusted providers.
         </p>
