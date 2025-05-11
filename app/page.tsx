@@ -50,12 +50,11 @@ export default function Home() {
 
     console.log("Order ID post request:", orderId)
   }
-  
+
   return (
     <div className="container py-8">
       <div className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Health Data Marketplace</h1>
-        <button onClick={test}>click me</button>
         <p className="text-muted-foreground">
           Browse and purchase anonymized health datasets from trusted providers.
         </p>

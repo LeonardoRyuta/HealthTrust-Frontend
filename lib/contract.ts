@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-const CONTRACT_ADDRESS = "0xe041b50CA3ED1c23F8D7139a11Ed107a010937D5";
+const CONTRACT_ADDRESS = "0x50739936402555eE6034c09FA77e007036fD23A1";
 
 export async function getPubKey() {
   if (!window.ethereum) throw new Error("MetaMask not found");
