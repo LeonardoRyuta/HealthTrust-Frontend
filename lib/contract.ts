@@ -147,10 +147,13 @@ export async function makePurchase(datasetId: string, price: string, tokenAddres
     });
 
     const tx = await contract.orderRequest(datasetIdBN, priceInWei, tokenAddress);
-    console.log("Transaction details:", tx);
+    const receipt = await tx.wait();
 
-    const receipt = await tx.wait(); // Waits for confirmation
-    
+    const event = receipt.logs.find((log: any) =>
+      log.address?.toLowerCase() === contract.address.toLowerCase()
+    );
+
+    console.log("Raw logs:", receipt.logs);
 
     return tx;
   } catch (error) {
